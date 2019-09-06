@@ -1,0 +1,27 @@
+{
+  "name": "-polyfill-promise",
+  "version": "1.0.0",
+  "description": "\bpolyfill-promise",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha -r ts-node/register test/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LeoWangJ/-polyfill-promise.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LeoWangJ/-polyfill-promise/issues"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.1",
+    "@types/mocha": "^5.2.7",
+    "chai": "^4.2.0",
+    "mocha": "^6.2.0",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.6.2"
+  },
+  "homepage": "https://github.com/LeoWangJ/-polyfill-promise#readme"
+}
