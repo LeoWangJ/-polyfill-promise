@@ -47,4 +47,24 @@ describe('Promise', () => {
         // @ts-ignore
         promise.then(fn)
     })
+    it('Promise.then(null,fail) 中的fail會在reject被調用的時候執行。', (done) => {
+        let fn = sinon.fake()
+        let promise = new Promise((resolve, reject) => {
+            assert.isFalse(fn.called)
+            reject()
+            setTimeout(() => {
+                assert.isTrue(fn.called)
+                done()
+            })
+        })
+        // @ts-ignore
+        promise.then(null, fn)
+    })
+    it('Promise.then(success) 中的success不是函數則必須忽略', () => {
+        let promise = new Promise((resolve) => {
+            resolve()
+        })
+        promise.then(false, null)
+        assert(1 === 1)
+    })
 })

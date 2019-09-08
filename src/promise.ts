@@ -1,14 +1,21 @@
 class PromisePolyfill {
     succeed = null
     fail = null
-    resolve() {
+    status = "pending"
+    resolve(result) {
         setTimeout(() => {
-            this.succeed()
+            this.status = "fulfilled"
+            if (typeof this.succeed === 'function') {
+                this.succeed(result)
+            }
         }, 0)
     }
-    reject() {
+    reject(reason) {
         setTimeout(() => {
-            this.fail()
+            this.status = "rejected"
+            if (typeof this.fail === 'function') {
+                this.fail(reason)
+            }
         }, 0)
     }
     constructor(fn) {
@@ -17,9 +24,13 @@ class PromisePolyfill {
         }
         fn(this.resolve.bind(this), this.reject.bind(this))
     }
-    then(succeed, fail) {
-        this.succeed = succeed
-        this.fail = fail
+    then(succeed?, fail?) {
+        if (typeof succeed === 'function') {
+            this.succeed = succeed
+        }
+        if (typeof fail === 'function') {
+            this.fail = fail
+        }
     }
 }
 
