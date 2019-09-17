@@ -60,11 +60,109 @@ describe('Promise', () => {
         // @ts-ignore
         promise.then(null, fn)
     })
-    it('Promise.then(success) 中的success不是函數則必須忽略', () => {
+    it('2.2.1', () => {
         let promise = new Promise((resolve) => {
             resolve()
         })
         promise.then(false, null)
         assert(1 === 1)
+    })
+    it('2.2.2', done=>{
+        const succeed = sinon.fake()
+        const promise = new Promise(resolve =>{
+            assert.isFalse(succeed.called)
+            resolve(222)
+            resolve(2223)
+            setTimeout(()=>{
+                assert(promise.status === 'fulfilled')
+                assert.isTrue(succeed.calledOnce)
+                assert(succeed.calledWith(222))
+                done()
+            },0)
+        })
+        promise.then(succeed)
+    })
+    it('2.2.3', done=>{
+        const fail = sinon.fake()
+        const promise = new Promise((resolve,reject) =>{
+            assert.isFalse(fail.called)
+            reject(222)
+            reject(2223)
+            setTimeout(()=>{
+                assert(promise.status === 'rejected')
+                assert.isTrue(fail.calledOnce)
+                assert(fail.calledWith(222))
+                done()
+            },0)
+        })
+        promise.then(null,fail)
+    })
+    it('2.2.4 在我的代碼執行完之前，不得調用 then 後面的兩個函數',(done)=>{
+        const succeed = sinon.fake()
+        const promise = new Promise(resolve=>{
+            resolve()
+        })
+        promise.then(succeed)
+        assert.isFalse(succeed.called)
+        setTimeout(()=>{
+            assert.isTrue(succeed.called)
+            done()
+        },0)
+    })
+    it('2.2.4 失敗回調',(done)=>{
+        const fn = sinon.fake()
+        const promise = new Promise((resolve,reject) =>{
+            reject()
+        })
+        promise.then(null,fn)
+        assert.isFalse(fn.called)
+        setTimeout(()=>{
+            assert.isTrue(fn.called)
+            done()
+        },0)
+    })
+    it('2.2.5',(done)=>{
+        const promise = new Promise(resolve=>{
+            resolve()
+        })
+        promise.then(function(){
+            'use strict'
+            assert(this === undefined)
+            done()
+        })
+    })
+    it('2.2.6 在同一个 promise 实例中，then 可以链式调用多次', done =>{
+        const promise = new Promise(resolve=>{
+            resolve()
+        })
+        const callbacks = [sinon.fake(),sinon.fake(),sinon.fake()]
+        promise.then(callbacks[0])
+        promise.then(callbacks[1])
+        promise.then(callbacks[2])
+        setTimeout(() => {
+            assert.isTrue(callbacks[0].called)
+            assert.isTrue(callbacks[1].called)
+            assert.isTrue(callbacks[2].called)
+            assert.isTrue(callbacks[1].calledAfter(callbacks[0]))
+            assert.isTrue(callbacks[2].calledAfter(callbacks[1]))
+            done()
+        }, 0);
+    })
+    it('2.2.6.2 在同一个 promise 实例中，then 可以链式调用多次', done =>{
+        const promise = new Promise((resolve,reject)=>{
+            reject()
+        })
+        const callbacks = [sinon.fake(),sinon.fake(),sinon.fake()]
+        promise.then(null,callbacks[0])
+        promise.then(null,callbacks[1])
+        promise.then(null,callbacks[2])
+        setTimeout(() => {
+            assert.isTrue(callbacks[0].called)
+            assert.isTrue(callbacks[1].called)
+            assert.isTrue(callbacks[2].called)
+            assert.isTrue(callbacks[1].calledAfter(callbacks[0]))
+            assert.isTrue(callbacks[2].calledAfter(callbacks[1]))
+            done()
+        }, 0);
     })
 })
