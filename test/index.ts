@@ -165,4 +165,12 @@ describe('Promise', () => {
             done()
         }, 0);
     })
+    it('2.2.7 then必须返回一个promise', ()=>{
+        const promise = new Promise(reslove=>{
+            reslove()
+        })
+
+        const promise2 = promise.then(()=>{},()=>{})
+        assert(promise2 instanceof Promise)
+    })
 })
