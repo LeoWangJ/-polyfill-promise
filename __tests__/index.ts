@@ -116,7 +116,9 @@ describe("Promise", () => {
       expect(promise.status === fulfilled);
       let fn = jest.fn();
       promise.then(fn);
-      expect(fn).toBeCalled();
+      setTimeout(() => {
+        expect(fn).toBeCalled();
+      });
     });
 
     it("then 第二個參數是在 rejected 才會執行", () => {
@@ -127,7 +129,9 @@ describe("Promise", () => {
       expect(promise.status === rejected);
       let fn = jest.fn();
       promise.then(undefined, fn);
-      expect(fn).toBeCalled();
+      setTimeout(() => {
+        expect(fn).toBeCalled();
+      });
     });
 
     it("將 resolve 的值傳遞給 onFulfilled", (done) => {
@@ -146,6 +150,63 @@ describe("Promise", () => {
         expect(result).toBe(1);
         done();
       });
+    });
+
+    it("then 參數需為異步", (done) => {
+      let fn = jest.fn(() => done);
+      new Promise((resolve: Function) => {
+        resolve(1);
+      }).then(fn);
+
+      expect(fn).not.toBeCalled();
+      setTimeout(() => {
+        expect(fn).toBeCalled();
+        done();
+      }, 0);
+    });
+
+    it("當狀態 pending 時，先執行 then 時，將成功函數保存到 resolve 執行後才執行", (done) => {
+      let fn = jest.fn((value) => {
+        expect(value).toBe(1);
+      });
+
+      let promise = new Promise((resolve: Function) => {
+        setTimeout(() => {
+          resolve(1);
+        }, 1500);
+      });
+      promise.then(fn);
+      setTimeout(() => {
+        expect(promise.status).toBe(pending);
+        expect(fn).not.toBeCalled();
+      }, 1000);
+      setTimeout(() => {
+        expect(promise.status).toBe(fulfilled);
+        expect(fn).toBeCalled();
+        done();
+      }, 2000);
+    });
+
+    it("當狀態 pending 時，先執行 then 時，將失敗函數保存到 reject 執行後才執行", (done) => {
+      let fn = jest.fn((value) => {
+        expect(value).toBe(1);
+      });
+
+      let promise = new Promise((resolve: Function, reject: Function) => {
+        setTimeout(() => {
+          reject(1);
+        }, 1500);
+      });
+      promise.then(undefined, fn);
+      setTimeout(() => {
+        expect(promise.status).toBe(pending);
+        expect(fn).not.toBeCalled();
+      }, 1000);
+      setTimeout(() => {
+        expect(promise.status).toBe(rejected);
+        expect(fn).toBeCalled();
+        done();
+      }, 2000);
     });
   });
 });
