@@ -209,4 +209,13 @@ describe("Promise", () => {
       }, 2000);
     });
   });
+
+  describe("鏈式 then", () => {
+    it("返回一個 promise", () => {
+      let promise = new Promise((resolve: Function) => {
+        resolve(1);
+      }).then(() => {});
+      expect(promise).toBeInstanceOf(Promise);
+    });
+  });
 });
